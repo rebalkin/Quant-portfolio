@@ -1,2 +1,2 @@
 # Quant playground
-Place to play around with quant calculations and simulations!
+A place to play around with quant calculations and simulations!
