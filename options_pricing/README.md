@@ -1,3 +1,3 @@
-# Quant-training
-Place to play around with quant calculations and simulations
+# Options pricing
+European and american option pricing using a binary tree
 
