@@ -1,37 +1,58 @@
 # Quant Training: Option Pricing Methods
 
-A collection of numerical methods for option pricing, developed while studying quantitative finance.  
-The repo explores **binomial trees**, **Monte Carlo simulation**, and **Black–Scholes benchmarks**, with a focus on comparing methods, analyzing convergence, and visualizing option behavior.
+This repository showcases my work in **quantitative finance**, applying numerical methods and simulations to option pricing.  
+It demonstrates my ability to **model stochastic processes**, **implement algorithms from scratch**, and **analyze convergence and error** — skills directly relevant to quantitative research and trading.
 
 ---
 
-## 📂 Contents
+## 🧩 Skills Demonstrated
 
-### 1. Binomial Trees
-- Pricing American and European calls and puts.
-- Option prices vs. strike and volatility.
-- Convergence of binomial tree estimates to the Black–Scholes formula.
+- **Stochastic Modeling:** Geometric Brownian Motion (GBM) for asset price simulation.  
+- **Numerical Methods:** Binomial tree pricing, Monte Carlo simulation, error analysis.  
+- **Analytical Finance:** Black–Scholes closed-form benchmarks, Greeks, payoff structures.  
+- **Computational Skills:** Python, NumPy, SciPy, Matplotlib, Jupyter.  
+- **Research Mindset:** Comparing methods, analyzing convergence rates, validating against theory.  
+
+---
+
+## 📂 Project Highlights
+
+### 1. Binomial Tree Pricing
+- American vs. European call and put options.  
+- Pricing as a function of strike and volatility.  
+- Demonstrated convergence of binomial estimates to the Black–Scholes formula.  
+
+👉 *Skills: algorithm implementation, numerical convergence, visualization.*
+
+---
 
 ### 2. Black–Scholes Benchmarks
-- Closed-form solutions for European calls and puts.
-- Payoff comparisons at expiry.
-- Example of a **butterfly spread** payoff and pricing.
+- Implemented closed-form call/put option formulas.  
+- Compared analytic solutions with discrete binomial approximations.  
+- Modeled complex payoffs like the **butterfly spread**.  
+
+👉 *Skills: mathematical finance, model validation, payoff engineering.*
+
+---
 
 ### 3. Monte Carlo Simulation
-- Simulating stock paths via **Geometric Brownian Motion**.
-- Monte Carlo estimation of European option prices.
-- Convergence of simulation estimates to Black–Scholes, with confidence intervals.
-- Error scaling ∝ \(1/\sqrt{N}\).
+- Simulated stock paths using **GBM under the risk-neutral measure**.  
+- Estimated European option prices by averaging discounted payoffs.  
+- Added **statistical rigor** with confidence intervals and error scaling (\(1/\sqrt{N}\)).  
+
+👉 *Skills: stochastic simulation, variance reduction, statistical analysis.*
 
 ---
 
 ## 📊 Example Figures
 
-### American vs European Put Prices
+**American vs. European Put Prices**
 <img src="plots/binomial/put_vs_strike.png" alt="Put vs Strike" width="500"/>
 
-### Butterfly Spread under Black–Scholes
+**Butterfly Spread under Black–Scholes**
 <img src="plots/black_scholes/butterfly.png" alt="Butterfly Spread" width="500"/>
 
-### Monte Carlo Convergence with Error Bars
+**Monte Carlo Convergence with Error Bars**
 <img src="plots/monte_carlo/convergence.png" alt="MC Convergence" width="500"/>
+
+---
