@@ -50,8 +50,9 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 
 <img src="plots/put_vs_S0.png" alt="Put vs Strike" width="500"/>
 
-**Butterfly Spread under Black–Scholes**
-<img src="plots/black_scholes/butterfly.png" alt="Butterfly Spread" width="500"/>
+**ITM/OTM Put Options as a function of expiry**
+
+<img src="plots/put_vs_Sigma.png" alt="Butterfly Spread" width="500"/>
 
 **Monte Carlo Convergence with Error Bars**
 
