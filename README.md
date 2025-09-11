@@ -53,6 +53,7 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 <img src="plots/black_scholes/butterfly.png" alt="Butterfly Spread" width="500"/>
 
 **Monte Carlo Convergence with Error Bars**
+
 <img src="plots/call_vs_S0_conv.png" alt="MC Convergence" width="500"/>
 
 ---
