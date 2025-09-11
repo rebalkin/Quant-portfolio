@@ -47,7 +47,8 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 ## 📊 Example Figures
 
 **American vs. European Put Prices**
-<img src="plots/binomial/put_vs_strike.png" alt="Put vs Strike" width="500"/>
+
+<img src="plots/put_vs_S0.png" alt="Put vs Strike" width="500"/>
 
 **Butterfly Spread under Black–Scholes**
 <img src="plots/black_scholes/butterfly.png" alt="Butterfly Spread" width="500"/>
