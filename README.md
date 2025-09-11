@@ -17,30 +17,16 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 
 ## 📂 Project Highlights
 
-### 1. Binomial Tree Pricing
-- American vs. European call and put options.  
-- Pricing as a function of strike and volatility.  
-- Demonstrated convergence of binomial estimates to the Black–Scholes formula.  
+### 1. Option Pricing Methods (Binomial Trees, Monte Carlo, Black–Scholes)
 
-👉 *Skills: algorithm implementation, numerical convergence, visualization.*
+- Implemented and compared three core approaches to option pricing:
+  - **Binomial trees** (American vs. European calls/puts, convergence to Black–Scholes).
+  - **Black–Scholes benchmarks** (closed-form solutions, butterfly spread payoff).
+  - **Monte Carlo simulation** (GBM under risk-neutral measure, confidence intervals, error scaling).
+- Analyzed sensitivities to strike, maturity, and volatility, highlighting convergence and early exercise effects.
+  
+👉 Skills: stochastic simulation, numerical methods, analytical finance, error analysis, visualization.
 
----
-
-### 2. Black–Scholes Benchmarks
-- Implemented closed-form call/put option formulas.  
-- Compared analytic solutions with discrete binomial approximations.  
-- Modeled complex payoffs like the **butterfly spread**.  
-
-👉 *Skills: mathematical finance, model validation, payoff engineering.*
-
----
-
-### 3. Monte Carlo Simulation
-- Simulated stock paths using **GBM under the risk-neutral measure**.  
-- Estimated European option prices by averaging discounted payoffs.  
-- Added **statistical rigor** with confidence intervals and error scaling (\(1/\sqrt{N}\)).  
-
-👉 *Skills: stochastic simulation, variance reduction, statistical analysis.*
 
 ---
 
