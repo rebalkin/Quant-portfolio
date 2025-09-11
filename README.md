@@ -1,4 +1,4 @@
-# Quant Training: Option Pricing Methods
+# Quant finance portfolio
 
 This repository showcases my work in **quantitative finance**, applying numerical methods and simulations to option pricing.  
 It demonstrates my ability to **model stochastic processes**, **implement algorithms from scratch**, and **analyze convergence and error** — skills directly relevant to quantitative research and trading.
