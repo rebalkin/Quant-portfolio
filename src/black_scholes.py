@@ -7,7 +7,7 @@ from scipy import integrate
 def d1_func(S, E, r, D,sigma, T):
     return (np.log(S / E) + (r-D + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
 def d2_func(S, E, r,D, sigma, T):
-    return d1(S, E, r, D,sigma, T)-sigma * np.sqrt(T)
+    return d1_func(S, E, r, D,sigma, T)-sigma * np.sqrt(T)
 def N(x):
     return norm.cdf(x)
 def Np(x):

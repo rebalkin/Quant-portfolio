@@ -30,24 +30,28 @@ def GBM_time_series(S0, mu, sigma, T,dt):
         S_next = GBM_single(S_init, drift, vol, dt)
         prices.append(S_next)
     return np.array(prices)
-
+# TO DO - correct error estimation
 def MC_price(S0, r, sigma, T,dt,payoff,N):
     if not callable(payoff):
         print("Error: payoff needs to ba callable")
         return None
     if not callable(r) and not callable(sigma):
         return MC_price_consts(S0, r, sigma, T,payoff,N)
-    sum=0;
+    res=0
     for i in range(N):
         S = GBM_time_series(S0, r, sigma, T,dt)
-        sum += payoff(S[-1])
-    average = sum/N
+        res += payoff(S[-1])
+    average = res/N
     if not callable(r):
-        return np.exp(-r*T)*average
+        result = np.exp(-r*T)*average
+        error = result/np.sqrt(N)
+        return result, error
     else:
         # r is a function of time
         integral_r = np.trapzoid([r(t) for t in np.arange(0,T+dt,dt)], dx=dt)
-        return np.exp(-integral_r)*average  
+        result = np.exp(-integral_r)*average
+        error = result/np.sqrt(N)
+        return result, error
     
     
     
@@ -57,12 +61,16 @@ def MC_price_consts(S0, r, sigma, T,payoff,N):
     if not callable(payoff):
         print("Error: payoff needs to ba callable")
         return None
-    sum=0
+    res=[]
     for i in range(N):
         S = GBM_single(S0, r, sigma, T)
-        sum += payoff(S)
-    average = sum/N
-    return np.exp(-r*T)*average
+        res.append(np.exp(-r*T)*payoff(S))
+    res = np.array(res)
+
+    mean = res.mean()              # or np.mean(arr)
+    std = res.std(ddof=1)    
+
+    return mean, std/np.sqrt(N)
         
 
 
