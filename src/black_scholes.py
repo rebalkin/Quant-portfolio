@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import norm
 from scipy import integrate
+from scipy.optimize import brentq
 
 # (norm.cdf)
 
@@ -34,3 +35,9 @@ def ST_rand(S, r, D, sigma, T, y):
 def bs_integral_price(S, r, D, sigma, T,payoff):
     result, error = integrate.quad(lambda x: payoff(ST_rand(S, r, D, sigma, T,x)), -np.inf, np.inf)
 
+def implied_vol(S, E, r, D, T, option_type,price):
+    objective = lambda sigma: bs_formula_price(S, E, r, D,sigma, T, option_type) - price
+    try:
+        return brentq(objective, 1e-6, 2)  # search between 0.000001 and 500%
+    except ValueError:
+        return np.nan

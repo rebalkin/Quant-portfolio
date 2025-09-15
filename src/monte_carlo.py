@@ -20,7 +20,7 @@ def GBM_single(S0, mu, sigma, dt):
     return S1
 
 def GBM_time_series(S0, mu, sigma, T,dt):
-    n = T/dt
+    n = int(T/dt)
     prices = [S0]
     for i in range(n):
         t = i*dt
@@ -30,27 +30,29 @@ def GBM_time_series(S0, mu, sigma, T,dt):
         S_next = GBM_single(S_init, drift, vol, dt)
         prices.append(S_next)
     return np.array(prices)
-# TO DO - correct error estimation
+
+
 def MC_price(S0, r, sigma, T,dt,payoff,N):
     if not callable(payoff):
         print("Error: payoff needs to ba callable")
         return None
     if not callable(r) and not callable(sigma):
         return MC_price_consts(S0, r, sigma, T,payoff,N)
-    res=0
+    res=[]
     for i in range(N):
         S = GBM_time_series(S0, r, sigma, T,dt)
-        res += payoff(S[-1])
-    average = res/N
+        res.append(payoff(S[-1]))
+    mean = res.mean()              # or np.mean(arr)
+    std = res.std(ddof=1)    
     if not callable(r):
-        result = np.exp(-r*T)*average
-        error = result/np.sqrt(N)
+        result = np.exp(-r*T)*mean
+        error = std/np.sqrt(N)
         return result, error
     else:
         # r is a function of time
         integral_r = np.trapzoid([r(t) for t in np.arange(0,T+dt,dt)], dx=dt)
-        result = np.exp(-integral_r)*average
-        error = result/np.sqrt(N)
+        result = np.exp(-integral_r)*mean
+        error = std/np.sqrt(N)
         return result, error
     
     
