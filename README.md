@@ -27,7 +27,7 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
   
 👉 Skills: stochastic simulation, numerical methods, analytical finance, error analysis, visualization.
 
-### 2. Volatility Estimation (Historical, Rolling, EWMA)
+### 2. [Volatility Estimation](notebooks/volatility_estimation.ipynb) (Historical, Rolling, EWMA)
 
 - Implemented and compared multiple approaches to volatility estimation:
   - **Historical volatility** (using log returns, annualization).
