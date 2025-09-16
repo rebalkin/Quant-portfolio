@@ -17,7 +17,7 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 
 ## 📂 Project Highlights
 
-### 1. Option Pricing Methods (Binomial Trees, Monte Carlo, Black–Scholes)
+### 1. [Option Pricing Methods](/notebooks/option_pricing.ipynb) (Binomial Trees, Monte Carlo, Black–Scholes)
 
 - Implemented and compared three core approaches to option pricing:
   - **Binomial trees** (American vs. European calls/puts, convergence to Black–Scholes).
