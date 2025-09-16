@@ -27,6 +27,15 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
   
 👉 Skills: stochastic simulation, numerical methods, analytical finance, error analysis, visualization.
 
+### 2. Volatility Estimation (Historical, Rolling, EWMA, GARCH)
+
+- Implemented and compared multiple approaches to volatility estimation:
+  - **Historical volatility** (using log returns, annualization).
+  - **Rolling window estimates** (sliding windows to track changing variance).
+  - **Exponentially Weighted Moving Average (EWMA)** (linking half-life to decay factor λ).
+- Visualized and compared methods across different time periods, highlighting responsiveness to market shocks and the trade-off between smoothness and reactivity.
+
+👉 Skills: time-series modeling, statistical finance, stochastic processes, GARCH estimation, data visualization.
 
 ---
 
