@@ -35,7 +35,7 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
   - **Exponentially Weighted Moving Average (EWMA)** (linking half-life to decay factor λ).
 - Visualized and compared methods across different time periods, highlighting responsiveness to market shocks and the trade-off between smoothness and reactivity.
 
-👉 Skills: time-series modeling, statistical finance, stochastic processes, GARCH estimation, data visualization.
+👉 Skills: time-series modeling, statistical finance, stochastic processes, data visualization.
 
 ---
 
