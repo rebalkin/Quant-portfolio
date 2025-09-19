@@ -80,6 +80,37 @@ def eval_option_tree(S0,E,r,sigma,expiry,N_steps,option_type,exercise_type):
     # print("Layer: ",cur_layer, "values are: ",cur_vals.T)
     return cur_vals[0,0]
 
+def eval_option_tree_fast(S0, r, q, sigma, T, N_steps, payoff, exercise_type):
+    dt = T / N_steps
+    u = np.exp(sigma * np.sqrt(dt))
+    v = np.exp(-sigma * np.sqrt(dt))
+    p = (np.exp((r - q) * dt) - v) / (u - v)
+
+    scalar_input = np.isscalar(S0)
+    S0 = np.atleast_1d(S0)                # shape (m,)
+
+    i = np.arange(N_steps + 1)
+    ST = S0[:, None] * (u ** (N_steps - i)) * (v ** i)   # (m, N+1)
+
+    cur_vals = payoff(ST)                  # (m, N+1) 
+    disc = np.exp(-r * dt)
+    is_american = (exercise_type == "american")
+
+    # Roll back over time (reduce columns)
+    while cur_vals.shape[1] > 1:
+        cur_vals = disc * (p * cur_vals[:, :-1] + (1 - p) * cur_vals[:, 1:])
+
+        if is_american:
+            cur_N = cur_vals.shape[1] - 1
+            i = np.arange(cur_N + 1)
+            ST = S0[:, None] * (u ** (cur_N - i)) * (v ** i)   # (m, cur_N+1)
+            cur_payoff = payoff(ST)                             # (m, cur_N+1)
+            cur_vals = np.maximum(cur_vals, cur_payoff)         # broadcast OK
+
+    out = cur_vals[:, 0]
+    return out[0] if scalar_input else np.array(out)
+ 
+
 
 
 
