@@ -31,6 +31,60 @@ def GBM_time_series(S0, mu, sigma, T,dt):
         prices.append(S_next)
     return np.array(prices)
 
+def GBM_time_series_fast(S0, mu, sigma, T,dt,m):
+    n = int(round(T / dt))
+    logpaths = np.random.normal(size=(n,m))
+    times = np.arange(n) * dt  
+    sig = sigma(times) if callable(sigma) else sigma
+    muu = mu(times)     if callable(mu)     else mu
+    sig, muu = np.asarray(sig), np.asarray(muu)
+    logpaths *= sig * np.sqrt(dt)
+    logpaths += (muu - 0.5 * sig**2)*dt
+    prices = S0*np.exp(np.cumsum(logpaths,axis=0))
+
+    stocks = np.empty((n+1, m))
+    stocks[0, :] = S0
+    stocks[1:, :] =prices
+
+    time_grid = np.linspace(0, T, n+1)
+    return time_grid,stocks
+
+# def GBM_time_series_fast(S0, mu, sigma, T,dt):
+#     n = int(round(T / dt))
+#     paths = np.random.normal(size=n)
+#     times = np.arange(n) * dt  
+#     sig = sigma(times) if callable(sigma) else sigma
+#     muu = mu(times)     if callable(mu)     else mu
+#     sig, muu = np.asarray(sig), np.asarray(muu)
+#     paths *= sig * np.sqrt(dt)
+#     paths += (muu - 0.5 * sig**2)*dt
+
+#     stocks = np.concatenate([[S0],S0*np.exp(np.cumsum(paths))])
+#     return stocks
+
+def MC_price_fast(S0, r, sigma, T,dt,payoff,N):
+    if not callable(payoff):
+        print("Error: payoff needs to ba callable")
+        return None
+
+    timegrid, paths = GBM_time_series_fast(1, r, sigma, T,dt,N)
+    payoffs = payoff(np.outer(S0, paths[-1,:]))
+    mean = payoffs.mean(axis = 1)              # or np.mean(arr)
+    std = payoffs.std(axis = 1,ddof=1)
+
+    if not callable(r):
+        disc = np.exp(-r*T)
+    else:
+        tgrid = np.arange(0, T+dt, dt)
+        integral_r = np.trapzoid(r(tgrid), dx=dt)
+        disc = np.exp(-integral_r)
+    
+    price = disc * mean
+    stderr = disc * std/np.sqrt(N)
+    if np.ndim(S0) == 0:
+        return float(price), float(stderr)
+    return price, stderr
+
 
 def MC_price(S0, r, sigma, T,dt,payoff,N):
     if not callable(payoff):
@@ -56,8 +110,6 @@ def MC_price(S0, r, sigma, T,dt,payoff,N):
         return result, error
     
     
-    
-
 def MC_price_consts(S0, r, sigma, T,payoff,N):
     # This can be used the validate Black-Scholes 
     if not callable(payoff):

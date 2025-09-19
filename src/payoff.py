@@ -1,195 +1,58 @@
+import numpy as np
+
 def payoff_call(S, K):
-    """Calculate the payoff of a European call option.
-
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The strike price of the option.
-
-    Returns
-    -------
-    float
-        The payoff of the call option.
-    """
-    return max(S - K, 0)
+    """European call: max(S - K, 0). Works with arrays (broadcasts)."""
+    return np.maximum(S - K, 0.0)
 
 def payoff_put(S, K):
-    """Calculate the payoff of a European put option.
+    """European put: max(K - S, 0). Works with arrays (broadcasts)."""
+    return np.maximum(K - S, 0.0)
 
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The strike price of the option.
-
-    Returns
-    -------
-    float
-        The payoff of the put option.
-    """
-    return max(K - S, 0)
 def payoff_forward(S, K):
-    """Calculate the payoff of a forward contract.
+    """Forward payoff: S - K. Works with arrays (broadcasts)."""
+    return np.asarray(S) - K
 
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The delivery price of the forward contract.
-
-    Returns
-    -------
-    float
-        The payoff of the forward contract.
-    """
-    return S - K
 def payoff_futures(S, K):
-    """Calculate the payoff of a futures contract.
+    """Futures payoff: S - K (same as forward at expiry)."""
+    return np.asarray(S) - K
 
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The delivery price of the futures contract.
-
-    Returns
-    -------
-    float
-        The payoff of the futures contract.
-    """
-    return S - K
 def payoff_digital_call(S, K):
-    """Calculate the payoff of a digital call option.
+    """Digital (cash-or-nothing) call paying 1 if S > K else 0."""
+    return (np.asarray(S) > K).astype(float)
 
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The strike price of the option.
-
-    Returns
-    -------
-    float
-        The payoff of the digital call option.
-    """
-    return 1.0 if S > K else 0.0
 def payoff_digital_put(S, K):
-    """Calculate the payoff of a digital put option.
+    """Digital (cash-or-nothing) put paying 1 if S < K else 0."""
+    return (np.asarray(S) < K).astype(float)
 
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The strike price of the option.
-
-    Returns
-    -------
-    float
-        The payoff of the digital put option.
-    """
-    return 1.0 if S < K else 0.0
 def payoff_straddle(S, K):
-    """Calculate the payoff of a straddle option.
+    """Straddle: |S - K| = call(K) + put(K)."""
+    return np.abs(np.asarray(S) - K)
 
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K : float
-        The strike price of the options.
-
-    Returns
-    -------
-    float
-        The payoff of the straddle option.
-    """
-    return abs(S - K)
 def payoff_strangle(S, K1, K2):
-    """Calculate the payoff of a strangle option.
-
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K1 : float
-        The lower strike price of the options.
-    K2 : float
-        The upper strike price of the options.
-
-    Returns
-    -------
-    float
-        The payoff of the strangle option.
     """
-    if S < K1:
-        return K1 - S
-    elif S > K2:
-        return S - K2
-    else:
-        return 0.0
+    Strangle (K1 < K2): max(K1 - S, 0) + max(S - K2, 0).
+    Vectorized piecewise version via np.where.
+    """
+    S = np.asarray(S)
+    return np.where(S < K1, K1 - S, np.where(S > K2, S - K2, 0.0))
+
 def payoff_butterfly(S, K1, K2, K3):
-    """Calculate the payoff of a butterfly spread option.
-
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K1 : float
-        The lower strike price of the options.
-    K2 : float
-        The middle strike price of the options.
-        For symmetric butterfly, K2 = (K1 + K3) / 2
-    K3 : float
-        The upper strike price of the options.
-
-    Returns
-    -------
-    float
-        The payoff of the butterfly spread option.
     """
-    if S < K1 or S > K3:
-        return 0.0
-    elif K1 <= S < K2:
-        return S - K1
-    elif K2 <= S <= K3:
-        return K3 - S
-    else:
-        return 0.0
+    Long call butterfly with strikes K1 < K2 < K3.
+    Piecewise triangular payoff in [K1, K3], peak at K2.
+    Equivalent to: call(K1) - 2*call(K2) + call(K3).
+    """
+    S = np.asarray(S)
+    return np.where((S < K1) | (S > K3), 0.0,
+                    np.where(S < K2, S - K1, K3 - S))
+
 def payoff_condor(S, K1, K2, K3, K4):
-    """Calculate the payoff of a condor spread option.
-
-    Parameters
-    ----------
-    S : float
-        The spot price of the underlying asset at maturity.
-    K1 : float
-        The lowest strike price of the options.
-    K2 : float
-        The lower-middle strike price of the options.
-    K3 : float
-        The upper-middle strike price of the options.
-    K4 : float
-        The highest strike price of the options.
-
-    Returns
-    -------
-    float
-        The payoff of the condor spread option.
     """
-    if S < K1 or S > K4:
-        return 0.0
-    elif K1 <= S < K2:
-        return S - K1
-    elif K2 <= S < K3:
-        return K2 - K1
-    elif K3 <= S <= K4:
-        return K4 - S
-    else:
-        return 0.0
+    Long call condor with K1 < K2 < K3 < K4.
+    Plateau (K2-K1) between K2 and K3.
+    Equivalent to: call(K1) - call(K2) - call(K3) + call(K4).
+    """
+    S = np.asarray(S)
+    return np.where((S < K1) | (S > K4), 0.0,
+                    np.where(S < K2, S - K1,
+                    np.where(S < K3, K2 - K1, K4 - S)))
