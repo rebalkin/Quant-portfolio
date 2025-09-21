@@ -62,15 +62,23 @@ def GBM_time_series_fast(S0, mu, sigma, T,dt,m):
 #     stocks = np.concatenate([[S0],S0*np.exp(np.cumsum(paths))])
 #     return stocks
 
-def MC_price_fast(S0, r, sigma, T,dt,payoff,N):
+def MC_price_fast(S0, r, sigma, T,dt,payoff,N, K=None):
     if not callable(payoff):
         print("Error: payoff needs to ba callable")
         return None
 
     timegrid, paths = GBM_time_series_fast(1, r, sigma, T,dt,N)
-    payoffs = payoff(np.outer(S0, paths[-1,:]))
-    mean = payoffs.mean(axis = 1)              # or np.mean(arr)
-    std = payoffs.std(axis = 1,ddof=1)
+    ST = np.outer(np.atleast_1d(S0), paths[-1, :])  
+
+    if K is None:
+        payoffs = payoff(ST)                                        # (m, N)
+        mean = payoffs.mean(axis=1)                                 # (m,)
+        std  = payoffs.std(axis=1, ddof=1)                          # (m,)
+    else:
+        K = np.atleast_1d(K)                                        # (k,)
+        payoffs = payoff(ST[..., None], K[None, None, :])           # (m, N, k)
+        mean = payoffs.mean(axis=1)                                 # (m, k)
+        std  = payoffs.std(axis=1, ddof=1)                          # (m, k)
 
     if not callable(r):
         disc = np.exp(-r*T)
@@ -81,8 +89,9 @@ def MC_price_fast(S0, r, sigma, T,dt,payoff,N):
     
     price = disc * mean
     stderr = disc * std/np.sqrt(N)
-    if np.ndim(S0) == 0:
-        return float(price), float(stderr)
+    # Nice scalar returns when both S0 and K are scalars
+    if np.ndim(S0) == 0 and (K is None or np.ndim(K) == 0):
+        return float(np.squeeze(price)), float(np.squeeze(stderr))
     return price, stderr
 
 
