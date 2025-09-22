@@ -43,6 +43,7 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 
 **American vs. European Put Prices**
 
+<img src="plots/put_vs_S0.png" alt="Put vs Strike" width="500"/>
 
 **ITM/OTM Put Options as a function of expiry**
 
