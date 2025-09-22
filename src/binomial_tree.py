@@ -80,69 +80,109 @@ def eval_option_tree(S0,E,r,sigma,expiry,N_steps,option_type,exercise_type):
     # print("Layer: ",cur_layer, "values are: ",cur_vals.T)
     return cur_vals[0,0]
 
+import numpy as np
+
 def eval_option_tree_fast(S0, r, q, sigma, T, N_steps, payoff, exercise_type, K=None):
     """
-    Vectorized binomial tree:
-      S0: scalar or (m,)
-      K:  scalar or (k,) — optional (if None, payoff must accept payoff(ST) only)
-      payoff: function taking payoff(ST, K) and returning same-shape array
-              e.g. lambda ST, K: np.maximum(ST - K, 0.0)
+    Vectorized binomial tree over S0, T, sigma, and optionally K.
+
+    Inputs:
+      S0:    scalar or (m,)
+      r, q:  scalars (can be arrays broadcastable to T/sigma if desired)
+      sigma: scalar or (p,*)  (any shape broadcastable with T)
+      T:     scalar or (p,*)  (must be broadcastable with sigma)
+      N_steps: int
+      payoff: function(ST, K) -> same-shape array  (if K=None, accepts payoff(ST))
+      exercise_type: "european" or "american"
+      K:     scalar or (k,)   (optional)
+
     Returns:
-      If S0 and K are scalars -> float
-      If S0 is (m,) and K is scalar/None -> (m,)
-      If S0 is scalar and K is (k,) -> (k,)
-      If S0 is (m,) and K is (k,) -> (m, k)
+      Shapes:
+        no K:  (m, P)  where P = np.prod(broadcast_shape_of(T, sigma))
+        with K: (m, P, k)
+      Scalars are squeezed.
     """
-    dt = T / N_steps
-    u = np.exp(sigma * np.sqrt(dt))
-    v = np.exp(-sigma * np.sqrt(dt))
-    p = (np.exp((r - q) * dt) - v) / (u - v)
-    disc = np.exp(-r * dt)
     is_american = (exercise_type.lower() == "american")
 
-    scalar_S0 = np.ndim(S0) == 0
+    # Shapes
     S0 = np.atleast_1d(S0)                 # (m,)
     m = S0.size
 
-    # Terminal stock prices S_T for each S0 across N_steps+1 nodes
+    # Broadcast T and sigma (and optionally r, q) to a common 1D param axis P
+    T  = np.asarray(T)
+    sigma = np.asarray(sigma)
+
+    if T.ndim == 1 and sigma.ndim == 1 and T.shape != sigma.shape:
+    # interpret as full grid of all T×sigma combinations
+        T     = T[:, None]      # (t,1)
+        sigma = sigma[None, :]  # (1,s)
+
+
+    # Compute the common broadcast shape, then flatten to (P,)
+    bshape = np.broadcast_shapes(T.shape, sigma.shape)
+    T  = np.broadcast_to(T,  bshape).ravel()            # (P,)
+    sigma = np.broadcast_to(sigma, bshape).ravel()      # (P,)
+    P = T.size
+
+    # Allow r, q to broadcast too if arrays were passed
+    r = np.broadcast_to(np.asarray(r), bshape).ravel()
+    q = np.broadcast_to(np.asarray(q), bshape).ravel()
+
+    # Per-param step quantities
+    dt   = T / N_steps                                   # (P,)
+    u    = np.exp(sigma * np.sqrt(dt))                   # (P,)
+    v    = np.exp(-sigma * np.sqrt(dt))                  # (P,)
+    p    = (np.exp((r - q) * dt) - v) / (u - v)          # (P,)
+    disc = np.exp(-r * dt)                               # (P,)
+
+    # Powers for all nodes (node axis = N+1, param axis = P)
     i = np.arange(N_steps + 1)
-    ST = S0[:, None] * (u ** (N_steps - i)) * (v ** i)   # (m, N+1)
+    u_pow = u[None, :] ** (N_steps - i)[:, None]         # (N+1, P)
+    v_pow = v[None, :] ** (i)[:, None]                   # (N+1, P)
 
+    # Terminal stock prices ST: (m, N+1, P)
+    ST = S0[:, None, None] * u_pow[None, :, :] * v_pow[None, :, :]
+
+    # Terminal payoff (optionally over K -> last axis k)
     if K is None:
-        # Payoff signature: payoff(ST)
-        cur_vals = payoff(ST)                              # (m, N+1)
+        cur = payoff(ST)                                 # (m, N+1, P)
     else:
-        K = np.atleast_1d(K)                               # (k,)
-        # Broadcast payoff over strikes
-        cur_vals = payoff(ST[..., None], K[None, None, :]) # (m, N+1, k)
+        K = np.atleast_1d(K)                             # (k,)
+        cur = payoff(ST[..., None], K[None, None, None, :])  # (m, N+1, P, k)
 
-    # Roll back
+    # Rollback along node axis
     if K is None:
-        # shapes: (m, n+1)
-        while cur_vals.shape[1] > 1:
-            cur_vals = disc * (p * cur_vals[:, :-1] + (1 - p) * cur_vals[:, 1:])
+        # (m, n+1, P)
+        while cur.shape[1] > 1:
+            cur = disc[None, None, :] * (
+                p[None, None, :] * cur[:, :-1, :] + (1 - p)[None, None, :] * cur[:, 1:, :]
+            )
             if is_american:
-                cur_N = cur_vals.shape[1] - 1
-                j = np.arange(cur_N + 1)
-                ST_now = S0[:, None] * (u ** (cur_N - j)) * (v ** j)  # (m, cur_N+1)
-                cur_vals = np.maximum(cur_vals, payoff(ST_now))        # (m, cur_N+1)
-        out = cur_vals[:, 0]                                           # (m,)
+                n_now = cur.shape[1] - 1
+                j = np.arange(n_now + 1)
+                u_now = u[None, :] ** (n_now - j)[:, None]      # (n_now+1, P)
+                v_now = v[None, :] ** (j)[:, None]              # (n_now+1, P)
+                ST_now = S0[:, None, None] * u_now[None, :, :] * v_now[None, :, :]
+                cur = np.maximum(cur, payoff(ST_now))
+        out = cur[:, 0, :]                                      # (m, P)
     else:
-        # shapes: (m, n+1, k)
-        while cur_vals.shape[1] > 1:
-            cur_vals = disc * (p * cur_vals[:, :-1, :] + (1 - p) * cur_vals[:, 1:, :])
+        # (m, n+1, P, k)
+        while cur.shape[1] > 1:
+            cur = disc[None, None, :, None] * (
+                p[None, None, :, None] * cur[:, :-1, :, :] + (1 - p)[None, None, :, None] * cur[:, 1:, :, :]
+            )
             if is_american:
-                cur_N = cur_vals.shape[1] - 1
-                j = np.arange(cur_N + 1)
-                ST_now = S0[:, None] * (u ** (cur_N - j)) * (v ** j)   # (m, cur_N+1)
-                cur_payoff = payoff(ST_now[..., None], K[None, None, :])  # (m, cur_N+1, k)
-                cur_vals = np.maximum(cur_vals, cur_payoff)
-        out = cur_vals[:, 0, :]                                        # (m, k)
+                n_now = cur.shape[1] - 1
+                j = np.arange(n_now + 1)
+                u_now = u[None, :] ** (n_now - j)[:, None]      # (n_now+1, P)
+                v_now = v[None, :] ** (j)[:, None]              # (n_now+1, P)
+                ST_now = S0[:, None, None] * u_now[None, :, :] * v_now[None, :, :]
+                cur_pay = payoff(ST_now[..., None], K[None, None, None, :])
+                cur = np.maximum(cur, cur_pay)
+        out = cur[:, 0, :, :]                                   # (m, P, k)
 
-    # Return scalars/vectors with nice shapes
-    if scalar_S0 and (K is None or np.ndim(K) == 0):
-        return float(np.squeeze(out))
     return np.squeeze(out)
+
  
 
 
