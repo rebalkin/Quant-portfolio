@@ -65,3 +65,36 @@ def gamma(S, E, r, D,sigma, T, option_type):
     else:
         raise ValueError("option_type must be either 'call', 'put', 'digital_call' or 'digital_put'")
     
+def bs_vega(S, E, r, D, sigma, T):
+    # standard Vega (per 1.0 of sigma, not %)
+    d1 = (np.log(S/E) + (r - D + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
+    return S * np.exp(-D*T) * norm.pdf(d1) * np.sqrt(T)
+
+def implied_vol_newton(S, E, r, D, T, option_type, price,
+                       tol=1e-8, max_iter=50, sigma0=0.2, sigma_min=1e-8, sigma_max=5.0):
+    # broadcast all to common shape
+    S,E,r,D,T,price = np.broadcast_arrays(S,E,r,D,T,price)
+    sigma = np.full(price.shape, float(sigma0))
+    valid = np.isfinite(price)
+
+    for _ in range(max_iter):
+        pv = bs_formula_price(S, E, r, D, sigma, T, option_type)
+        diff = pv - price
+        vega = bs_vega(S, E, r, D, sigma, T)
+
+        # where we can safely step
+        mask = valid & np.isfinite(vega) & (vega > 1e-12)
+        if not np.any(mask):
+            break
+
+        step = diff[mask] / vega[mask]
+        sigma[mask] -= step
+        # keep sigma in bounds
+        sigma = np.clip(sigma, sigma_min, sigma_max)
+
+        if np.all(np.abs(step) < tol):
+            break
+
+    # mark failures as NaN (prices out of no-arbitrage range or non-converged)
+    sigma[~valid] = np.nan
+    return sigma
