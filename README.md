@@ -44,7 +44,7 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
      - **Monte Carlo simulations** (stock price paths under GBM, risk-neutral valuation).  
      - **Discrete re-hedging** (examined convergence to continuous limit, error scaling).  
    - Quantified the effect of **mismatch between hedging volatility and true volatility**, highlighting sources of arbitrage profit/loss.  
-   - Analyzed sensitivities to strike, maturity, and hedge interval, including statistical error estimates.  
+   - Analyzed sensitivity to hedge interval, including statistical error estimates.  
 
    👉 **Skills:** stochastic calculus, Monte Carlo simulation, risk-neutral pricing, error analysis, numerical methods, financial engineering.
 
