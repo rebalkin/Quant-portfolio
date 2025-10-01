@@ -37,6 +37,17 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
 
 👉 Skills: time-series modeling, statistical finance, stochastic processes, data visualization.
 
+### 3. [Volatility Arbitrage Simulation](notebooks/vol_arb.ipynb) (Hedging, Error Analysis, Monte Carlo)  
+   - Implemented and analyzed a volatility arbitrage strategy by simulating option hedging under **different assumed volatilities**.  
+   - Developed functions for option pricing and hedging P&L using:  
+     - **Black–Scholes model** (closed-form benchmark for European options).  
+     - **Monte Carlo simulations** (stock price paths under GBM, risk-neutral valuation).  
+     - **Discrete re-hedging** (examined convergence to continuous limit, error scaling).  
+   - Quantified the effect of **mismatch between hedging volatility and true volatility**, highlighting sources of arbitrage profit/loss.  
+   - Analyzed sensitivities to strike, maturity, and hedge interval, including statistical error estimates.  
+
+   👉 **Skills:** stochastic calculus, Monte Carlo simulation, risk-neutral pricing, error analysis, numerical methods, financial engineering.
+
 ---
 
 ## 📊 Example Figures
