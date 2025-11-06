@@ -49,8 +49,8 @@ It demonstrates my ability to **model stochastic processes**, **implement algori
    👉 **Skills:** stochastic calculus, Monte Carlo simulation, risk-neutral pricing, error analysis, numerical methods, financial engineering.
 
 ### 4. [Heston Calibration & Hedging Simulation](notebooks/heston.ipynb) (Stochastic Volatility, Calibration, Hedging Error)  
-   - Validated Monte-Carlo generated option prices with semi-analytic results.  
-   - Calibrated the **Heston model** to full implied-volatility surfaces (AMZN, GOOG, AMD).  
+   - Validated **Monte Carlo** generated option prices with semi-analytic results.  
+   - Calibrated the **Heston model** to real world prices surfaces (AMZN, GOOG, AMD).  
    - Simulated **Heston price/variance paths under the real-world measure \(P\)** while computing Greeks under the **risk-neutral measure \(Q\)** to study the impact of the volatility risk premium ($\lambda_v$).  
    - Implemented **delta and delta+vega hedging** using Heston Greeks and analyzed discrete-time hedging error.  
 
